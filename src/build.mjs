@@ -23,6 +23,8 @@ const css = read("./fonts.css") + fs.readFileSync(".build/styles.css", "utf8");
 fs.rmSync(OUT, { recursive: true, force: true });
 fs.cpSync("public", OUT, { recursive: true });
 fs.copyFileSync(new URL("./main.js", import.meta.url), path.join(OUT, "assets", "main.js"));
+// Downloadable PDFs keep stable, shareable URLs (not fingerprinted); see vercel.json for headers.
+fs.cpSync("pdf", path.join(OUT, "downloads"), { recursive: true, filter: (f) => !path.basename(f).startsWith(".") });
 
 const assetMap = new Map(); // "/assets/a.webp" -> "/assets/a.1f2e3d4c5b.webp"
 (function fingerprint(dir) {
@@ -59,9 +61,6 @@ const hrefFor = {
   mailto: `mailto:${contact.email}`,
   maps: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(contact.address)}`,
 };
-const toolkitText = encodeURIComponent(
-  "Hello Empathy & Mind, I'd like to receive the free Child Emotional Regulation & Inclusive Learning Toolkit (PDF)."
-);
 
 // Rewrite contact attributes on each opening tag.
 html = html.replace(/<(a|button|span|p)\b([^>]*)>/g, (tag, name, attrs) => {
@@ -74,9 +73,8 @@ html = html.replace(/<(a|button|span|p)\b([^>]*)>/g, (tag, name, attrs) => {
   if ((m = get("data-href"))) setHref(hrefFor[m[1]], m[1] === "maps");
   if ((m = get("data-wa"))) setHref(waLink(m[1]), true);
   if ((m = get("data-mail"))) setHref(`mailto:${contact.email}?${m[1]}`, false);
-  if (get("data-toolkit")) setHref(waLink(toolkitText), true);
   if ((m = get("data-copy")) && m[1] in contact) attrs = attrs.replace(m[0], ` data-copy="${esc(contact[m[1]])}"`);
-  attrs = attrs.replace(/\sdata-(href|wa|mail|toolkit)(="[^"]*")?/g, "");
+  attrs = attrs.replace(/\sdata-(href|wa|mail)(="[^"]*")?/g, "");
   return `<${name}${attrs}>`;
 });
 html = html.replace(/(data-text="(\w+)"[^>]*>)[^<]*</g, (_, open, key) => `${open}${esc(contact[key])}<`);
@@ -155,6 +153,10 @@ html = html
   .replace("<!--JSONLD-->", () => `<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`)
   .replace(/(<body[^>]*>)/, (b) => `${b}${spriteUsed.replace(/\n/g, "")}`);
 html = rewriteAssetUrls(html, "index.html");
+
+for (const [, href] of html.matchAll(/href="(\/downloads\/[^"]+)"/g)) {
+  if (!fs.existsSync(path.join(OUT, decodeURIComponent(href)))) throw new Error(`download link points to a missing file: ${href}`);
+}
 
 // The CSP header (vercel.json) allows no inline scripts; JSON-LD is data, not script.
 const inlineScripts = [...html.matchAll(/<script(?![^>]*\bsrc=)(?![^>]*application\/ld\+json)[^>]*>/g)];
