@@ -1,0 +1,12 @@
+{
+  "name": "Empathy & Mind",
+  "short_name": "Empathy & Mind",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#f4faff",
+  "theme_color": "#325346",
+  "icons": [
+    { "src": "/assets/favicon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/assets/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}

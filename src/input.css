@@ -3,13 +3,71 @@
 @tailwind utilities;
 
 @layer base {
-  /* Keep anchored sections clear of the fixed header. */
+  html {
+    -webkit-tap-highlight-color: transparent;
+    text-size-adjust: 100%;
+  }
+  body {
+    overscroll-behavior-y: none;
+  }
+  /* Keep anchored sections clear of the fixed header (80px mobile, 112px with the top bar). */
   section[id] {
-    scroll-margin-top: 112px;
+    scroll-margin-top: 88px;
   }
-  .material-symbols-outlined {
-    font-display: block;
+  @media (min-width: 640px) {
+    section[id] {
+      scroll-margin-top: 120px;
+    }
   }
+  :focus-visible {
+    outline: 2px solid #325346;
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+}
+
+@layer components {
+  .icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    flex-shrink: 0;
+    fill: currentColor;
+    vertical-align: -0.125em;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -8px, 0);
+  }
+}
+@keyframes pulseSubtle {
+  0%,
+  100% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.03);
+  }
+}
+.animate-float {
+  animation: float 5.5s ease-in-out infinite;
+  will-change: transform;
+}
+.animate-pulse-subtle {
+  animation: pulseSubtle 4s ease-in-out infinite;
+}
+
+.anim-paused,
+.anim-paused * {
+  animation-play-state: paused !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

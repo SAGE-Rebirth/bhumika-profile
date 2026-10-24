@@ -1,57 +1,16 @@
-// Contact details used across the page. Edit here; every link, label and copy button updates.
-const CONTACT = {
-  phone: "+919179058011", // WhatsApp + mobile, digits with country code
-  phoneDisplay: "+91 91790 58011",
-  email: "bhumikaverma.inneralchemy@gmail.com",
-  address: "Arera Colony, Bhopal, Madhya Pradesh",
-  hours: "Consultations by prior appointment",
-};
+// Contact details live in src/contact.json and are baked into the HTML at build time.
+// One delegated click listener handles every interactive element, so nothing needs
+// per-element listeners and nothing is left behind if markup changes.
 
-const waLink = (encodedText) =>
-  `https://wa.me/${CONTACT.phone.replace(/\D/g, "")}${encodedText ? `?text=${encodedText}` : ""}`;
-
-const hrefFor = {
-  tel: () => `tel:${CONTACT.phone}`,
-  mailto: () => `mailto:${CONTACT.email}`,
-  maps: () => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(CONTACT.address)}`,
-};
-
-document.querySelectorAll("[data-text]").forEach((el) => {
-  el.textContent = CONTACT[el.dataset.text];
-});
-
-document.querySelectorAll("[data-href]").forEach((el) => {
-  el.href = hrefFor[el.dataset.href]();
-});
-
-document.querySelectorAll("[data-wa]").forEach((el) => {
-  el.href = waLink(el.dataset.wa);
-  el.target = "_blank";
-  el.rel = "noopener";
-});
-
-document.querySelectorAll("[data-mail]").forEach((el) => {
-  el.href = `mailto:${CONTACT.email}?${el.dataset.mail}`;
-});
-
-document.querySelectorAll("[data-toolkit]").forEach((el) => {
-  el.href = waLink(
-    encodeURIComponent(
-      "Hello Empathy & Mind, I'd like to receive the free Child Emotional Regulation & Inclusive Learning Toolkit (PDF)."
-    )
-  );
-  el.target = "_blank";
-  el.rel = "noopener";
-});
-
-document.querySelectorAll("[data-year]").forEach((el) => {
-  el.textContent = new Date().getFullYear();
-});
-
-// Toast
 const toast = document.getElementById("toast");
+const draft = document.getElementById("inquiry-draft");
+const menuBtn = document.getElementById("menu-toggle");
+const menu = document.getElementById("mobile-menu");
+const menuIcon = menuBtn?.querySelector("use");
+
 let toastTimer;
 function showToast(message) {
+  if (!toast) return;
   toast.textContent = message;
   toast.classList.remove("opacity-0", "translate-y-3");
   clearTimeout(toastTimer);
@@ -61,48 +20,73 @@ function showToast(message) {
 async function copyText(text) {
   try {
     await navigator.clipboard.writeText(text);
+    return true;
   } catch {
     const ta = document.createElement("textarea");
     ta.value = text;
     ta.setAttribute("readonly", "");
-    ta.style.position = "fixed";
-    ta.style.opacity = "0";
+    ta.style.cssText = "position:fixed;opacity:0";
     document.body.appendChild(ta);
     ta.select();
-    document.execCommand("copy");
+    const ok = document.execCommand("copy");
     ta.remove();
+    return ok;
   }
 }
 
-document.querySelectorAll("[data-copy]").forEach((btn) => {
-  btn.addEventListener("click", async () => {
-    await copyText(CONTACT[btn.dataset.copy]);
-    showToast(`Copied: ${CONTACT[btn.dataset.copy]}`);
-  });
-});
+function isMenuOpen() {
+  return menu ? !menu.classList.contains("hidden") : false;
+}
 
-const draft = document.getElementById("inquiry-draft");
-document.querySelectorAll("[data-copy-draft]").forEach((btn) => {
-  btn.addEventListener("click", async () => {
-    // Skip the "Inquiry draft" heading line.
-    const lines = [...draft.querySelectorAll("p")].slice(1).map((p) => p.textContent.trim());
-    await copyText(lines.join("\n"));
-    showToast("Inquiry draft copied — paste it into WhatsApp or email.");
-  });
-});
-
-// Mobile menu
-const menuBtn = document.getElementById("menu-toggle");
-const menu = document.getElementById("mobile-menu");
 function setMenu(open) {
+  if (!menu || !menuBtn) return;
   menu.classList.toggle("hidden", !open);
   menuBtn.setAttribute("aria-expanded", String(open));
   menuBtn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
-  menuBtn.querySelector(".material-symbols-outlined").textContent = open ? "close" : "menu";
+  menuIcon?.setAttribute("href", open ? "#i-close" : "#i-menu");
 }
-menuBtn.addEventListener("click", () => setMenu(menu.classList.contains("hidden")));
-menu.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => setMenu(false)));
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") setMenu(false);
+
+document.addEventListener("click", async (event) => {
+  const target = event.target instanceof Element ? event.target : null;
+  if (!target) return;
+
+  if (target.closest("#menu-toggle")) {
+    setMenu(!isMenuOpen());
+    return;
+  }
+  if (target.closest("#mobile-menu a")) setMenu(false);
+
+  const copyBtn = target.closest("[data-copy]");
+  if (copyBtn) {
+    const value = copyBtn.getAttribute("data-copy");
+    showToast((await copyText(value)) ? `Copied: ${value}` : "Couldn't copy — please select the text instead.");
+    return;
+  }
+
+  if (target.closest("[data-copy-draft]") && draft) {
+    // Skip the "Inquiry draft" heading line.
+    const lines = [...draft.querySelectorAll("p")].slice(1).map((p) => p.textContent.trim());
+    showToast(
+      (await copyText(lines.join("\n")))
+        ? "Inquiry draft copied — paste it into WhatsApp or email."
+        : "Couldn't copy — please select the text instead."
+    );
+  }
 });
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && isMenuOpen()) {
+    setMenu(false);
+    menuBtn?.focus();
+  }
+});
+
 window.matchMedia("(min-width: 1280px)").addEventListener("change", (e) => e.matches && setMenu(false));
+
+// Pause decorative SVG animations while they are off screen.
+if ("IntersectionObserver" in window) {
+  const animObserver = new IntersectionObserver((entries) => {
+    for (const entry of entries) entry.target.classList.toggle("anim-paused", !entry.isIntersecting);
+  });
+  document.querySelectorAll("[data-anim]").forEach((el) => animObserver.observe(el));
+}
