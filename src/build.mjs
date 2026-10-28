@@ -106,7 +106,7 @@ const jsonLd = {
     {
       "@type": "ProfessionalService",
       "@id": `${SITE_URL}/#practice`,
-      name: "Empathy & Mind",
+      name: "Yatharth",
       description:
         "Evidence-based child psychology and educational consulting for parents, schools and EdTech teams in Bhopal and online.",
       url: `${SITE_URL}/`,

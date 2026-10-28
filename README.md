@@ -1,6 +1,6 @@
-# Empathy & Mind — Landing Page
+# Yatharth — Landing Page
 
-Landing page for **Empathy & Mind**, Bhumika Verma's child psychology and educational consulting practice in Bhopal.
+Landing page for **Yatharth**, Bhumika Verma's child psychology and educational consulting practice in Bhopal.
 
 **Live:** https://empathy-and-mind.vercel.app
 
