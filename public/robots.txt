@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://empathy-and-mind.vercel.app/sitemap.xml
+Sitemap: https://yatharth-bhopal.vercel.app/sitemap.xml

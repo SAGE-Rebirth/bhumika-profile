@@ -5,6 +5,19 @@
   "outputDirectory": "site",
   "cleanUrls": true,
   "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "empathy-and-mind.vercel.app"
+        }
+      ],
+      "destination": "https://yatharth-bhopal.vercel.app/:path*",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

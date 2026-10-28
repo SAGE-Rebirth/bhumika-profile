@@ -7,7 +7,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
-const SITE_URL = "https://empathy-and-mind.vercel.app";
+const SITE_URL = "https://yatharth-bhopal.vercel.app";
 const OUT = "site";
 const read = (p) => fs.readFileSync(new URL(p, import.meta.url), "utf8");
 const sha = (data, enc = "hex") => crypto.createHash("sha256").update(data).digest(enc);

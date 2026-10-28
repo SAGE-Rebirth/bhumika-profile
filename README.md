@@ -2,7 +2,7 @@
 
 Landing page for **Yatharth**, Bhumika Verma's child psychology and educational consulting practice in Bhopal.
 
-**Live:** https://empathy-and-mind.vercel.app
+**Live:** https://yatharth-bhopal.vercel.app
 
 It is a static site: one HTML page built from the design export with Tailwind CSS and a small Node build script. There is no framework and no server code, and nothing runs at request time.
 
@@ -18,11 +18,11 @@ npm run dev     # build, then serve site/ at http://localhost:4321
 
 ## Deploying
 
-Deploys go through **GitHub → Vercel**. The Vercel project `empathy-and-mind` is connected to this repository.
+Deploys go through **GitHub → Vercel**. The Vercel project `yatharth` is connected to this repository.
 
 | Push to | Result |
 | --- | --- |
-| `main` | Production deploy to https://empathy-and-mind.vercel.app |
+| `main` | Production deploy to https://yatharth-bhopal.vercel.app |
 | any other branch | Preview deploy with its own URL, shown in the Vercel dashboard |
 
 ```bash
@@ -31,7 +31,7 @@ git commit -m "Describe the change"
 git push origin main
 ```
 
-Vercel runs `npm ci` and then `npm run build`, and serves the `site/` folder. These settings live in `vercel.json`, so nothing needs to be configured in the dashboard. You can follow a build under **Vercel → empathy-and-mind → Deployments**.
+Vercel runs `npm ci` and then `npm run build`, and serves the `site/` folder. These settings live in `vercel.json`, so nothing needs to be configured in the dashboard. You can follow a build under **Vercel → yatharth → Deployments**.
 
 > Run `npm run build` locally before pushing. The build fails loudly on missing contact fields, icons, images or download files, and it's better to see that before Vercel does.
 
